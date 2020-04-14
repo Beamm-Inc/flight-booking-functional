@@ -98,6 +98,7 @@ public class FunctionUtil {
 
         System.out.println(topKRoutes.apply(airline,2020,5));
         System.out.println(topMealForAllFlights.apply(airline,10));
+        System.out.println(topKFrequentFlyers.apply(airline,2020,10));
 
     }
 
@@ -132,5 +133,20 @@ public class FunctionUtil {
                             entry -> entry.getKey().getFlightNumber(),
                             entry -> getTopMealForAFlight.apply(entry.getValue())
                             ));
+
+    public static TriFunction<Airline,Integer,Integer,List<String>> topKFrequentFlyers = (airline,year,topK) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getBookings().stream())
+                    .filter(b -> b.getDateTimeOfBooking().getYear() == year)
+                    .collect(Collectors.groupingBy(Booking::getPassengers,Collectors.counting()))
+                    .entrySet().stream()
+                    .flatMap(e -> e.getKey().stream()
+                        .map(s -> new AbstractMap.SimpleImmutableEntry<Passenger,Long>(s,e.getValue())))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
+                    .map(m -> m.getKey().getPerson().getFirstName() + " " + m.getKey().getPerson().getLastName())
+                    .limit(topK)
+                    .collect(Collectors.toList());
 
 }

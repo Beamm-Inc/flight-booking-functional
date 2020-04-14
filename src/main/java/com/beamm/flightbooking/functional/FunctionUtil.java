@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,6 +97,7 @@ public class FunctionUtil {
         Airline airline = new Airline(1,"Ethiopian Airlines",scheduledFlights,bookings);
 
         System.out.println(topKRoutes.apply(airline,2020,5));
+        System.out.println(topMealForAllFlights.apply(airline,10));
 
     }
 
@@ -108,5 +111,26 @@ public class FunctionUtil {
                     .map(f -> f.getKey().getFlightNumber())
                     .limit(topK)
                     .collect(Collectors.toList());
+
+    public static Function<List<Trip>,String> getTopMealForAFlight = (trips) ->
+            trips.stream()
+                    .collect(Collectors.groupingBy(Trip::getMeal,Collectors.counting()))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(Map.Entry::getValue,Comparator.reverseOrder()))
+                    .map(e -> e.getKey().toString())
+                    .findFirst()
+                    .get();
+
+    public static BiFunction<Airline,Integer,Map<String,String>> topMealForAllFlights = (airline,month) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getBookings().stream())
+                    .flatMap(b -> b.getTrips().stream())
+                    .filter(t -> t.getScheduledFlight().getDepartureDate().getMonth().getValue() == month)
+                    .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey().getFlightNumber(),
+                            entry -> getTopMealForAFlight.apply(entry.getValue())
+                            ));
 
 }

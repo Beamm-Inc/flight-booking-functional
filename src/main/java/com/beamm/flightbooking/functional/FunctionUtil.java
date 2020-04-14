@@ -99,6 +99,7 @@ public class FunctionUtil {
         System.out.println(topKRoutes.apply(airline,2020,5));
         System.out.println(topMealForAllFlights.apply(airline,10));
         System.out.println(topKFrequentFlyers.apply(airline,2020,10));
+        System.out.println(totalNumberOfMiles.apply(airline,2020));
 
     }
 
@@ -148,5 +149,13 @@ public class FunctionUtil {
                     .map(m -> m.getKey().getPerson().getFirstName() + " " + m.getKey().getPerson().getLastName())
                     .limit(topK)
                     .collect(Collectors.toList());
+
+    public static BiFunction<Airline,Integer,Double> totalNumberOfMiles = (airline,year) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().getYear() == year)
+                    .map(s -> s.getFlight())
+                    .mapToDouble(f -> f.getDistance())
+                    .sum();
 
 }

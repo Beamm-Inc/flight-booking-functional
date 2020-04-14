@@ -5,7 +5,10 @@ import com.beamm.flightbooking.functional.model.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class FunctionUtil {
@@ -91,5 +94,19 @@ public class FunctionUtil {
 
         Airline airline = new Airline(1,"Ethiopian Airlines",scheduledFlights,bookings);
 
+        System.out.println(topKRoutes.apply(airline,2020,5));
+
     }
+
+    public static TriFunction<Airline,Integer,Integer,List<String>> topKRoutes=(airline,year,topK) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(f -> f.getDepartureDate().getYear() == year)
+                    .collect(Collectors.groupingBy(ScheduledFlight::getFlight,Collectors.counting()))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(Map.Entry::getValue))
+                    .map(f -> f.getKey().getFlightNumber())
+                    .limit(topK)
+                    .collect(Collectors.toList());
+
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -100,6 +101,7 @@ public class FunctionUtil {
         System.out.println(topMealForAllFlights.apply(airline,10));
         System.out.println(topKFrequentFlyers.apply(airline,2020,10));
         System.out.println(totalNumberOfMiles.apply(airline,2020));
+        System.out.println(bookingsPerMonth.apply(airline,2020));
 
     }
 
@@ -157,5 +159,12 @@ public class FunctionUtil {
                     .map(s -> s.getFlight())
                     .mapToDouble(f -> f.getDistance())
                     .sum();
+
+    public static BiFunction<Airline,Integer,Map<String,Long>> bookingsPerMonth = (airline,year) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getBookings().stream())
+                    .filter(b -> b.getDateTimeOfBooking().getYear() == year)
+                    .collect(Collectors.groupingBy(b -> b.getDateTimeOfBooking().getMonth().getDisplayName(TextStyle.FULL,
+                            Locale.ENGLISH),Collectors.counting()));
 
 }

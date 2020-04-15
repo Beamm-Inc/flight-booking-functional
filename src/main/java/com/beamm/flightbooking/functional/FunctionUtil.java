@@ -2,6 +2,7 @@ package com.beamm.flightbooking.functional;
 
 import com.beamm.flightbooking.functional.model.*;
 
+import java.security.spec.RSAOtherPrimeInfo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -99,7 +100,7 @@ public class FunctionUtil {
                     add(passenger2);
                 }}
         );
-
+        
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
         List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
@@ -114,6 +115,7 @@ public class FunctionUtil {
         System.out.println(topKRevenuePerRoute.apply(airline, 2020, 5));
         System.out.println(topMealForAGivenYearForAllFlightsOnMonthlyBasis.apply(airline, 2020));
         System.out.println(crowdedFlightPerYear.apply(airline,2020));
+        System.out.println(leastExpendingPassengers.apply(airline, 2020, 5));
 
     }
 
@@ -251,6 +253,25 @@ public class FunctionUtil {
                     .map(m -> m.getKey())
                     .findFirst()
                     .get();
+        
+    public static Function<List<Trip>, Double> sumPassengersYearlyExpenditure = trips ->
+            trips.stream().flatMapToDouble(t -> DoubleStream.of(t.getPrice() - t.getScheduledFlight().getCurrentPrice())).sum();
+
+
+    public static TriFunction<Airline, Integer, Integer, List<String>> leastExpendingPassengers = ((airline, year, topk) -> Stream.of(airline)
+            .flatMap(a -> a.getBookings().stream())
+            .filter(b -> b.getDateTimeOfBooking().getYear() == year)
+            .flatMap(b -> b.getTrips().stream())
+            .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight()))
+            .entrySet().stream()
+            .collect(Collectors.toMap(
+                    entry -> entry.getKey().getFlightNumber(),
+                    entry -> sumPassengersYearlyExpenditure.apply(entry.getValue())))
+            .entrySet().stream()
+            .sorted(Comparator.comparing(e -> e.getValue()))
+            .map(Map.Entry::getKey)
+            .limit(topk)
+            .collect(Collectors.toList()));
 
 }
 

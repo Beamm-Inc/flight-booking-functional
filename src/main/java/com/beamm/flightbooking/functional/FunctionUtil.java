@@ -114,6 +114,11 @@ public class FunctionUtil {
         System.out.println(multiLegFlightPassengers.apply(airline, 2020));
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
+        
+        
+        // find top N Flights Based On Seat Utilization On Monthly Basis
+        
+        System.out.println(topNFlightsBasedOnSeatOccupancy(2,LocalDate.of(2020, 10, 15),scheduledFlights));
     }
 
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
@@ -310,6 +315,17 @@ public class FunctionUtil {
                     .limit(topK)
                     .map(entry -> entry.getKey())
                     .collect(Collectors.toList());
+            
+            
+      public static List<Flight> topNFlightsBasedOnSeatOccupancy(int n, LocalDate date, List<ScheduledFlight> scheduledFlights) {
+    	     return scheduledFlights.stream()
+    			  .filter(sf-> sf.getDepartureDate().isAfter(date)&&sf.getDepartureDate().isBefore(date.plusMonths(1)))
+    			  .sorted((sf1,sf2)->(sf2.getOccupiedSeats()/sf2.getCapacity())-(sf1.getOccupiedSeats()/sf1.getCapacity()))
+    			  .limit(n)
+    			  .map(sf->sf.getFlight())
+    			  .collect(Collectors.toList());
+    			  
+      }
 
 }
 

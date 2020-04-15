@@ -13,6 +13,7 @@ public class ScheduledFlight {
     private double currentPrice;
     private LocalDate departureDate;
     private LocalDate arrivalDate;
+    
 
     private List<Passenger> passengers = new ArrayList<>(capacity);
 
@@ -81,5 +82,9 @@ public class ScheduledFlight {
     public List<Passenger> addPassenger(List<Passenger> passengers){
         boolean isAdded = passengers.addAll(passengers);
         return isAdded? passengers: null;
+    }
+    
+    public int getOccupiedSeats() {
+    	return passengers.size();
     }
 }

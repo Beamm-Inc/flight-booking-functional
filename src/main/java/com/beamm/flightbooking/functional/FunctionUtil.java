@@ -94,6 +94,7 @@ public class FunctionUtil {
         );
         Booking booking3 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
                 new ArrayList<Trip>() {{
+                    add(trip2);
                     add(trip3);
                 }},
                 new ArrayList<Passenger>() {{
@@ -116,6 +117,7 @@ public class FunctionUtil {
         System.out.println(topMealForAGivenYearForAllFlightsOnMonthlyBasis.apply(airline, 2020));
         System.out.println(crowdedFlightPerYear.apply(airline,2020));
         System.out.println(leastExpendingPassengers.apply(airline, 2020, 5));
+        System.out.println(multiLegFlightPassengers.apply(airline,2020));
 
     }
 
@@ -272,6 +274,18 @@ public class FunctionUtil {
             .map(Map.Entry::getKey)
             .limit(topk)
             .collect(Collectors.toList()));
+
+    public static BiFunction<Airline,Integer,Long> multiLegFlightPassengers = (airline,year) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getBookings().stream())
+                    .filter(b -> b.getDateTimeOfBooking().getYear() == year)
+                    .filter(b -> b.getTrips().stream().count() >= 2)
+                    .flatMap(b -> b.getPassengers().stream())
+                    .map(p -> p.getPerson())
+                    .distinct()
+                    .count();
+
+
 
 }
 

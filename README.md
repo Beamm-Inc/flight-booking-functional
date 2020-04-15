@@ -1,1 +1,5 @@
-# flight-booking-functional
+## Flight Booking Functional
+
+### Installation
+
+`docker-compose up`

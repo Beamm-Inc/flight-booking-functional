@@ -12,6 +12,7 @@ import java.util.*;
 
 class FunctionUtilTests {
 
+
     // Airplanes
     Airplane airplane1 = new Airplane(1, "ET-DL4S400", "777-200LR", 7, 25, 150);
     Airplane airplane2 = new Airplane(1, "ET-NJK0344", "A350-900", 10, 20, 170);
@@ -27,6 +28,8 @@ class FunctionUtilTests {
     // Flights
     Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
     Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
+    Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
+
     List<Flight> flights = Arrays.asList(flight1, flight2);
 
     // Scheduled Flights
@@ -43,7 +46,7 @@ class FunctionUtilTests {
             50.0, LocalDate.of(2019, 10, 13),
             LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
-    ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight2, airplane2, 80,
+    ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight3, airplane2, 80,
             50.0, LocalDate.of(2020, 10, 15),
             LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
 
@@ -99,7 +102,7 @@ class FunctionUtilTests {
 
     @Test
     public void topKRoutes(){
-        List<String> top5Routes = Arrays.asList("ET555", "ET302");
+        List<String> top5Routes = Arrays.asList("ET302", "ET345", "ET555");
         assertEquals(top5Routes,FunctionUtil.topKRoutes.apply(airline,2020,5));
     }
 
@@ -128,7 +131,7 @@ class FunctionUtilTests {
 
     @Test
     public void totalNumberOfMiles(){
-        double totalMiles = 10302.0;
+        double totalMiles = 10857.0;
         assertEquals(totalMiles, FunctionUtil.totalNumberOfMiles.apply(airline,2020));
     }
 
@@ -172,6 +175,12 @@ class FunctionUtilTests {
     public void multiLegFlightPassengers(){
         long multilegPassengers = 2;
         assertEquals(multilegPassengers, FunctionUtil.multiLegFlightPassengers.apply(airline,2020));
+    }
+
+    @Test
+    public void mostUsedAirpotsForAGivenYear(){
+        List<String> mostUsed = Arrays.asList("Bole International Airport","John F Kennedy International Airport","Chicago O'Hare International Airport");
+        assertEquals(mostUsed, FunctionUtil.mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
     }
 
 }

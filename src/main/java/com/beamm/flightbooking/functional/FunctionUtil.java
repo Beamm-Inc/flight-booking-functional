@@ -43,24 +43,22 @@ public class FunctionUtil {
         List<Flight> flights = Arrays.asList(flight1, flight2);
 
         // Scheduled Flights
-        ScheduledFlight scheduledFlight1 = new ScheduledFlight(1, flight1, airplane1, 50,
+        ScheduledFlight scheduledFlight1 = new ScheduledFlight(1, flight1, airplane1, 120,
                 50.0, LocalDate.of(2020, 10, 10),
                 LocalDate.of(2020, 10, 10), new ArrayList<Passenger>());
 
-        ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight2, airplane1, 50,
+        ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight2, airplane1, 110,
                 50.0, LocalDate.of(2020, 11, 13),
                 LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
 
-        ScheduledFlight scheduledFlight3 = new ScheduledFlight(3, flight1, airplane1, 50,
+        ScheduledFlight scheduledFlight3 = new ScheduledFlight(3, flight1, airplane1, 150,
                 50.0, LocalDate.of(2019, 10, 13),
                 LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
-        ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight2, airplane2, 50,
+        ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight2, airplane2, 80,
                 50.0, LocalDate.of(2020, 10, 15),
                 LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
-
-        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
 
         // Bookings
         Address address = new Address(1, "S12N 4th", "Chicago", "Illinois", "USA", "42423");//34,"a",,"c","d","12");
@@ -69,9 +67,10 @@ public class FunctionUtil {
         Person person2 = new Person(2, "Peter", "Madrig", "White", birthDay, "peterwhite", "M", "+17483743843", "peterwhite@gmail.com", address);
         Trip trip1 = new Trip(1, "50", Meal.VEGIE, "4FFCK", FlightClass.ECONOMY, scheduledFlight1, 1000.00);
         Trip trip2 = new Trip(2, "53", Meal.HALAL, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 980.00);
-        Trip trip3 = new Trip(2, "53", Meal.VEGIE, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
+        Trip trip3 = new Trip(2, "55", Meal.VEGIE, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
         Passenger passenger1 = new Passenger(1, "EP64734", person1, new ArrayList<Trip>() {{
             add(trip1);
+            add(trip2);
         }});
         Passenger passenger2 = new Passenger(2, "EP03278", person2, new ArrayList<Trip>() {{
             add(trip3);
@@ -79,6 +78,7 @@ public class FunctionUtil {
         Booking booking1 = new Booking(1, 423.56, LocalDateTime.now(), "ERTRKH4378FKOF8", "2",
                 new ArrayList<Trip>() {{
                     add(trip1);
+                    add(trip2);
                 }},
                 new ArrayList<Passenger>() {{
                     add(passenger1);
@@ -103,6 +103,8 @@ public class FunctionUtil {
 
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
+        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
+
         Airline airline = new Airline(1, "Ethiopian Airlines", scheduledFlights, bookings);
 
         System.out.println(topKRoutes.apply(airline, 2020, 5));
@@ -112,6 +114,7 @@ public class FunctionUtil {
         System.out.println(bookingsPerMonth.apply(airline, 2020));
         System.out.println(topKRevenuePerRoute.apply(airline, 2020, 5));
         System.out.println(topMealForAGivenForAllFlightsOnMonthlyBasis.apply(airline, 2020));
+        System.out.println(crowdedFlightPerYear.apply(airline,2020));
 
     }
 
@@ -226,6 +229,29 @@ public class FunctionUtil {
             .map(Map.Entry::getKey)
             .limit(topk)
             .collect(Collectors.toList()));
+
+
+    public static Function<List<ScheduledFlight>,Double> getAverageOccupancy = (scheduledFlights) ->
+            scheduledFlights.stream()
+                    .mapToDouble(s -> s.getPassengers().stream().count() / (double)s.getCapacity())
+                    .average()
+                    .getAsDouble();
+
+    public static BiFunction<Airline, Integer, String> crowdedFlightPerYear=(airline, year) ->
+            Stream.of(airline)
+                   .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().getYear() == year)
+                    .collect(Collectors.groupingBy(s -> s.getFlight()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey().getFlightNumber(),
+                            entry -> getAverageOccupancy.apply(entry.getValue())
+                    ))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(m -> m.getKey(),Comparator.reverseOrder()))
+                    .map(m -> m.getKey())
+                    .findFirst()
+                    .get();
 
 }
 

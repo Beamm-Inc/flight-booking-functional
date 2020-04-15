@@ -63,26 +63,16 @@ class FunctionUtilTests {
         add(trip3);
     }});
     Booking booking1 = new Booking(1, 423.56, LocalDateTime.now(), "ERTRKH4378FKOF8", "2",
-            new ArrayList<Trip>() {{
-                add(trip1);
-                add(trip2);
-            }},
             new ArrayList<Passenger>() {{
                 add(passenger1);
             }}
     );
     Booking booking2 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
-            new ArrayList<Trip>() {{
-                add(trip2);
-            }},
             new ArrayList<Passenger>() {{
                 add(passenger1);
             }}
     );
     Booking booking3 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
-            new ArrayList<Trip>() {{
-                add(trip3);
-            }},
             new ArrayList<Passenger>() {{
                 add(passenger2);
             }}

@@ -11,29 +11,36 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 
 public class FunctionUtil {
 
+    private enum ReportType {
+        DAILY,
+        WEEKLY,
+        MONTHLY
+    }
+
     public static void main(String[] args) {
 
         // Airplanes
-        Airplane airplane1 = new Airplane(1,"ET-DL4S400","777-200LR",7,25,150);
-        Airplane airplane2 = new Airplane(1,"ET-NJK0344","A350-900",10,20,170);
-        List<Airplane> airplanes = Arrays.asList(airplane1,airplane2);
+        Airplane airplane1 = new Airplane(1, "ET-DL4S400", "777-200LR", 7, 25, 150);
+        Airplane airplane2 = new Airplane(1, "ET-NJK0344", "A350-900", 10, 20, 170);
+        List<Airplane> airplanes = Arrays.asList(airplane1, airplane2);
 
         // Airports
-        Airport airport1 = new Airport(1,"Bole International Airport","ADD","Addis Ababa");
-        Airport airport2 = new Airport(1,"John F Kennedy International Airport","JFK","New York");
-        Airport airport3 = new Airport(1,"Chicago O'Hare International Airport","ORD","Chicago");
-        Airport airport4 = new Airport(1,"Beijing Capital International Airport","PEK","Beijing");
-        List<Airport> airports = Arrays.asList(airport1,airport2,airport3,airport4);
+        Airport airport1 = new Airport(1, "Bole International Airport", "ADD", "Addis Ababa");
+        Airport airport2 = new Airport(1, "John F Kennedy International Airport", "JFK", "New York");
+        Airport airport3 = new Airport(1, "Chicago O'Hare International Airport", "ORD", "Chicago");
+        Airport airport4 = new Airport(1, "Beijing Capital International Airport", "PEK", "Beijing");
+        List<Airport> airports = Arrays.asList(airport1, airport2, airport3, airport4);
 
         // Flights
-        Flight flight1 = new Flight(1,"ET302",airport1, airport2, LocalTime.now(),LocalTime.now(),434.3,4434.0);
-        Flight flight2 = new Flight(2,"ET555", airport2, airport1, LocalTime.now(), LocalTime.now(),434.3,2934.0);
-        List<Flight> flights = Arrays.asList(flight1,flight2);
+        Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
+        Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
+        List<Flight> flights = Arrays.asList(flight1, flight2);
 
         // Scheduled Flights
         ScheduledFlight scheduledFlight1 = new ScheduledFlight(1, flight1, airplane1, 50,
@@ -53,23 +60,23 @@ public class FunctionUtil {
                 50.0, LocalDate.of(2020, 10, 15),
                 LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
 
-        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1,scheduledFlight2,scheduledFlight3,scheduledFlight4);
+        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
 
         // Bookings
-        Address address = new Address(1,"S12N 4th","Chicago","Illinois","USA","42423");//34,"a",,"c","d","12");
+        Address address = new Address(1, "S12N 4th", "Chicago", "Illinois", "USA", "42423");//34,"a",,"c","d","12");
         LocalDate birthDay = LocalDate.of(1993, Month.JULY, 12);
-        Person person1 = new Person(1, "John", "King", "Robert", birthDay, "johnrobert", "M", "+14914636363", "johnroberts@gmail.com",address);
-        Person person2 = new Person(2, "Peter", "Madrig", "White", birthDay, "peterwhite", "M", "+17483743843", "peterwhite@gmail.com",address);
-        Trip trip1 = new Trip(1,"50", Meal.VEGIE, "4FFCK",FlightClass.ECONOMY,scheduledFlight1);
-        Trip trip2 = new Trip(2,"53", Meal.HALAL, "HJ434",FlightClass.BUSINESS,scheduledFlight2);
-        Trip trip3 = new Trip(2,"53", Meal.VEGIE, "HJ434",FlightClass.BUSINESS,scheduledFlight2);
+        Person person1 = new Person(1, "John", "King", "Robert", birthDay, "johnrobert", "M", "+14914636363", "johnroberts@gmail.com", address);
+        Person person2 = new Person(2, "Peter", "Madrig", "White", birthDay, "peterwhite", "M", "+17483743843", "peterwhite@gmail.com", address);
+        Trip trip1 = new Trip(1, "50", Meal.VEGIE, "4FFCK", FlightClass.ECONOMY, scheduledFlight1, 1000.00);
+        Trip trip2 = new Trip(2, "53", Meal.HALAL, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 980.00);
+        Trip trip3 = new Trip(2, "53", Meal.VEGIE, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
         Passenger passenger1 = new Passenger(1, "EP64734", person1, new ArrayList<Trip>() {{
             add(trip1);
         }});
         Passenger passenger2 = new Passenger(2, "EP03278", person2, new ArrayList<Trip>() {{
             add(trip3);
         }});
-        Booking booking1 = new Booking(1,423.56,LocalDateTime.now(),"ERTRKH4378FKOF8","2",
+        Booking booking1 = new Booking(1, 423.56, LocalDateTime.now(), "ERTRKH4378FKOF8", "2",
                 new ArrayList<Trip>() {{
                     add(trip1);
                 }},
@@ -77,7 +84,7 @@ public class FunctionUtil {
                     add(passenger1);
                 }}
         );
-        Booking booking2 = new Booking(2,239.26,LocalDateTime.of(2020, 10, 13,2,10),"NI43HB4J3BJ3","2",
+        Booking booking2 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
                 new ArrayList<Trip>() {{
                     add(trip2);
                 }},
@@ -85,7 +92,7 @@ public class FunctionUtil {
                     add(passenger1);
                 }}
         );
-        Booking booking3 = new Booking(2,239.26,LocalDateTime.of(2020, 10, 13,2,10),"NI43HB4J3BJ3","2",
+        Booking booking3 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
                 new ArrayList<Trip>() {{
                     add(trip3);
                 }},
@@ -93,41 +100,42 @@ public class FunctionUtil {
                     add(passenger2);
                 }}
         );
-        List<Booking> bookings = Arrays.asList(booking1,booking2,booking3);
 
-        Airline airline = new Airline(1,"Ethiopian Airlines",scheduledFlights,bookings);
+        List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
-        System.out.println(topKRoutes.apply(airline,2020,5));
-        System.out.println(topMealForAllFlights.apply(airline,10));
-        System.out.println(topKFrequentFlyers.apply(airline,2020,1));
-        System.out.println(totalNumberOfMiles.apply(airline,2020));
-        System.out.println(bookingsPerMonth.apply(airline,2020));
+        Airline airline = new Airline(1, "Ethiopian Airlines", scheduledFlights, bookings);
 
-        System.out.println(topMealForAGivenForAllFlightsOnMonthlyBasis.apply(airline,2020));
+        System.out.println(topKRoutes.apply(airline, 2020, 5));
+        System.out.println(topMealForAllFlights.apply(airline, 10));
+        System.out.println(topKFrequentFlyers.apply(airline, 2020, 1));
+        System.out.println(totalNumberOfMiles.apply(airline, 2020));
+        System.out.println(bookingsPerMonth.apply(airline, 2020));
+        System.out.println(topKRevenuePerRoute.apply(airline, 2020, 5));
+        System.out.println(topMealForAGivenForAllFlightsOnMonthlyBasis.apply(airline, 2020));
 
     }
 
-    public static TriFunction<Airline,Integer,Integer,List<String>> topKRoutes=(airline,year,topK) ->
+    public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
                     .filter(f -> f.getDepartureDate().getYear() == year)
-                    .collect(Collectors.groupingBy(ScheduledFlight::getFlight,Collectors.counting()))
+                    .collect(Collectors.groupingBy(ScheduledFlight::getFlight, Collectors.counting()))
                     .entrySet().stream()
                     .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
                     .map(f -> f.getKey().getFlightNumber())
                     .limit(topK)
                     .collect(Collectors.toList());
 
-    public static Function<List<Trip>,String> getTopMealForAFlight = (trips) ->
+    public static Function<List<Trip>, String> getTopMealForAFlight = (trips) ->
             trips.stream()
-                    .collect(Collectors.groupingBy(Trip::getMeal,Collectors.counting()))
+                    .collect(Collectors.groupingBy(Trip::getMeal, Collectors.counting()))
                     .entrySet().stream()
-                    .sorted(Comparator.comparing(Map.Entry::getValue,Comparator.reverseOrder()))
+                    .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
                     .map(e -> e.getKey().toString())
                     .findFirst()
                     .get();
 
-    public static BiFunction<Airline,Integer,Map<String,String>> topMealForAllFlights = (airline,month) ->
+    public static BiFunction<Airline, Integer, Map<String, String>> topMealForAllFlights = (airline, month) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
                     .flatMap(b -> b.getTrips().stream())
@@ -137,19 +145,18 @@ public class FunctionUtil {
                     .collect(Collectors.toMap(
                             entry -> entry.getKey(),//.getFlightNumber()
                             entry -> getTopMealForAFlight.apply(entry.getValue())
-                            ));
+                    ));
 
-
-    public static Function<List<Trip>,String> getTopMealForAGivenFlightForAGivenMonth = (trips) ->
+    public static Function<List<Trip>, String> getTopMealForAGivenFlightForAGivenMonth = (trips) ->
             trips.stream()
-                    .collect(Collectors.groupingBy(Trip::getMeal,Collectors.counting()))
+                    .collect(Collectors.groupingBy(Trip::getMeal, Collectors.counting()))
                     .entrySet().stream()
-                    .sorted(Comparator.comparing(Map.Entry::getValue,Comparator.reverseOrder()))
+                    .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
                     .map(e -> e.getKey().toString())
                     .findFirst()
                     .get();
 
-    public static Function<List<Trip>,Map<String,String>> topMealForAMonthForAllFlights = (trips) ->
+    public static Function<List<Trip>, Map<String, String>> topMealForAMonthForAllFlights = (trips) ->
             trips.stream()
                     .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight().getFlightNumber()))
                     .entrySet().stream()
@@ -158,8 +165,7 @@ public class FunctionUtil {
                             entry -> getTopMealForAGivenFlightForAGivenMonth.apply(entry.getValue())
                     ));
 
-    //Map<Month, Map<Flight,Meal>>
-    public static BiFunction<Airline,Integer,Map<String,Map<String, String>>> topMealForAGivenForAllFlightsOnMonthlyBasis = (airline,year) ->
+    public static BiFunction<Airline, Integer, Map<String, Map<String, String>>> topMealForAGivenForAllFlightsOnMonthlyBasis = (airline, year) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
                     .flatMap(b -> b.getTrips().stream())
@@ -173,7 +179,7 @@ public class FunctionUtil {
                     ));
 
 
-    public static TriFunction<Airline,Integer,Integer,List<String>> topKFrequentFlyers = (airline,year,topK) ->
+    public static TriFunction<Airline, Integer, Integer, List<String>> topKFrequentFlyers = (airline, year, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
                     .flatMap(b -> b.getPassengers().stream())
@@ -188,7 +194,7 @@ public class FunctionUtil {
                     .collect(Collectors.toList());
 
 
-    public static BiFunction<Airline,Integer,Double> totalNumberOfMiles = (airline,year) ->
+    public static BiFunction<Airline, Integer, Double> totalNumberOfMiles = (airline, year) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
                     .filter(s -> s.getDepartureDate().getYear() == year)
@@ -196,16 +202,31 @@ public class FunctionUtil {
                     .mapToDouble(f -> f.getDistance())
                     .sum();
 
-    public static BiFunction<Airline,Integer,Map<String,Long>> bookingsPerMonth = (airline,year) ->
+    public static BiFunction<Airline, Integer, Map<String, Long>> bookingsPerMonth = (airline, year) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
                     .filter(b -> b.getDateTimeOfBooking().getYear() == year)
                     .collect(Collectors.groupingBy(b -> b.getDateTimeOfBooking().getMonth().getDisplayName(TextStyle.FULL,
-                            Locale.ENGLISH),Collectors.counting()));
+                            Locale.ENGLISH), Collectors.counting()));
 
-    private enum ReportType{
-        DAILY,
-        WEEKLY,
-        MONTHLY
-    }
+    public static Function<List<Trip>, Double> toptalRevenuePerFlight = trips ->
+            trips.stream()
+                    .flatMapToDouble(t -> DoubleStream.of(t.getPrice()))
+                    .sum();
+
+    public static TriFunction<Airline, Integer, Integer, List<String>> topKRevenuePerRoute = ((airline, year, topk) -> Stream.of(airline)
+            .flatMap(a -> a.getBookings().stream())
+            .filter(b -> b.getDateTimeOfBooking().getYear() == year)
+            .flatMap(b -> b.getTrips().stream())
+            .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight().getFlightNumber()))
+            .entrySet().stream()
+            .collect(Collectors.toMap(entry -> entry.getKey(), entry -> toptalRevenuePerFlight.apply(entry.getValue())))
+            .entrySet().stream()
+            .sorted(Comparator.comparing(ent -> ent.getValue(), Comparator.reverseOrder()))
+            .map(Map.Entry::getKey)
+            .limit(topk)
+            .collect(Collectors.toList()));
+
 }
+
+

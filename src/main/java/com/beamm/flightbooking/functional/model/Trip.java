@@ -8,14 +8,17 @@ public class Trip {
     private String ticketNumber;
     private FlightClass flightClass;
     private ScheduledFlight scheduledFlight;
+    private double price;
 
-    public Trip(Integer tripID, String seat, Meal meal, String ticketNumber, FlightClass flightClass, ScheduledFlight flight) {
+
+    public Trip(Integer tripID, String seat, Meal meal, String ticketNumber, FlightClass flightClass, ScheduledFlight flight, Double price) {
         this.tripID = tripID;
         this.seat = seat;
         this.meal = meal;
         this.ticketNumber = ticketNumber;
         this.flightClass = flightClass;
         this.scheduledFlight = flight;
+        this.price = price;
     }
 
     public Integer getTripID() {
@@ -40,5 +43,9 @@ public class Trip {
 
     public ScheduledFlight getScheduledFlight() {
         return scheduledFlight;
+    }
+
+    public double getPrice() { 
+        return price;
     }
 }

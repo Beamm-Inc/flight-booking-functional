@@ -40,6 +40,8 @@ public class FunctionUtil {
         // Flights
         Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
         Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
+        Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
+
         List<Flight> flights = Arrays.asList(flight1, flight2);
 
         // Scheduled Flights
@@ -56,7 +58,7 @@ public class FunctionUtil {
                 50.0, LocalDate.of(2019, 10, 13),
                 LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
-        ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight2, airplane2, 80,
+        ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight3, airplane2, 80,
                 50.0, LocalDate.of(2020, 10, 15),
                 LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
 
@@ -101,7 +103,7 @@ public class FunctionUtil {
                     add(passenger2);
                 }}
         );
-        
+
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
         List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
@@ -115,9 +117,10 @@ public class FunctionUtil {
         System.out.println(bookingsPerMonth.apply(airline, 2020));
         System.out.println(topKRevenuePerRoute.apply(airline, 2020, 5));
         System.out.println(topMealForAGivenYearForAllFlightsOnMonthlyBasis.apply(airline, 2020));
-        System.out.println(crowdedFlightPerYear.apply(airline,2020));
+        System.out.println(crowdedFlightPerYear.apply(airline, 2020));
         System.out.println(leastExpendingPassengers.apply(airline, 2020, 5));
-        System.out.println(multiLegFlightPassengers.apply(airline,2020));
+        System.out.println(multiLegFlightPassengers.apply(airline, 2020));
+        System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
 
     }
 
@@ -234,15 +237,15 @@ public class FunctionUtil {
             .collect(Collectors.toList()));
 
 
-    public static Function<List<ScheduledFlight>,Double> getAverageOccupancy = (scheduledFlights) ->
+    public static Function<List<ScheduledFlight>, Double> getAverageOccupancy = (scheduledFlights) ->
             scheduledFlights.stream()
-                    .mapToDouble(s -> s.getPassengers().stream().count() / (double)s.getCapacity())
+                    .mapToDouble(s -> s.getPassengers().stream().count() / (double) s.getCapacity())
                     .average()
                     .getAsDouble();
 
-    public static BiFunction<Airline, Integer, String> crowdedFlightPerYear=(airline, year) ->
+    public static BiFunction<Airline, Integer, String> crowdedFlightPerYear = (airline, year) ->
             Stream.of(airline)
-                   .flatMap(a -> a.getScheduledFlights().stream())
+                    .flatMap(a -> a.getScheduledFlights().stream())
                     .filter(s -> s.getDepartureDate().getYear() == year)
                     .collect(Collectors.groupingBy(s -> s.getFlight()))
                     .entrySet().stream()
@@ -251,11 +254,11 @@ public class FunctionUtil {
                             entry -> getAverageOccupancy.apply(entry.getValue())
                     ))
                     .entrySet().stream()
-                    .sorted(Comparator.comparing(m -> m.getKey(),Comparator.reverseOrder()))
+                    .sorted(Comparator.comparing(m -> m.getKey(), Comparator.reverseOrder()))
                     .map(m -> m.getKey())
                     .findFirst()
                     .get();
-        
+
     public static Function<List<Trip>, Double> sumPassengersYearlyExpenditure = trips ->
             trips.stream().flatMapToDouble(t -> DoubleStream.of(t.getPrice() - t.getScheduledFlight().getCurrentPrice())).sum();
 
@@ -275,7 +278,7 @@ public class FunctionUtil {
             .limit(topk)
             .collect(Collectors.toList()));
 
-    public static BiFunction<Airline,Integer,Long> multiLegFlightPassengers = (airline,year) ->
+    public static BiFunction<Airline, Integer, Long> multiLegFlightPassengers = (airline, year) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
                     .filter(b -> b.getDateTimeOfBooking().getYear() == year)
@@ -286,7 +289,17 @@ public class FunctionUtil {
                     .count();
 
 
-
+    public static TriFunction<Airline, Integer, Integer, List<String>> mostUsedAirpotsForAGivenYear = (airline, year, topK) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().getYear() == year)
+                    .flatMap(s -> Stream.of(s.getFlight().getOrigin(), s.getFlight().getDestination()))
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
+                    .map(e -> e.getKey().getAirportName())
+                    .limit(topK)
+                    .collect(Collectors.toList());
 }
 
 

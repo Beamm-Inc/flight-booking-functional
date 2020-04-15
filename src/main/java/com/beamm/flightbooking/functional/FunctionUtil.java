@@ -22,7 +22,6 @@ public class FunctionUtil {
         WEEKLY,
         MONTHLY
     }
-
     public static void main(String[] args) {
 
         // Airplanes
@@ -113,7 +112,7 @@ public class FunctionUtil {
         System.out.println(totalNumberOfMiles.apply(airline, 2020));
         System.out.println(bookingsPerMonth.apply(airline, 2020));
         System.out.println(topKRevenuePerRoute.apply(airline, 2020, 5));
-        System.out.println(topMealForAGivenForAllFlightsOnMonthlyBasis.apply(airline, 2020));
+        System.out.println(topMealForAGivenYearForAllFlightsOnMonthlyBasis.apply(airline, 2020));
         System.out.println(crowdedFlightPerYear.apply(airline,2020));
 
     }
@@ -168,7 +167,7 @@ public class FunctionUtil {
                             entry -> getTopMealForAGivenFlightForAGivenMonth.apply(entry.getValue())
                     ));
 
-    public static BiFunction<Airline, Integer, Map<String, Map<String, String>>> topMealForAGivenForAllFlightsOnMonthlyBasis = (airline, year) ->
+    public static BiFunction<Airline, Integer, Map<String, Map<String, String>>> topMealForAGivenYearForAllFlightsOnMonthlyBasis = (airline, year) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
                     .flatMap(b -> b.getTrips().stream())

@@ -40,8 +40,8 @@ public class FunctionUtil {
                 50.0, LocalDate.of(2020, 10, 10),
                 LocalDate.of(2020, 10, 10), new ArrayList<Passenger>());
 
-        ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight1, airplane1, 50,
-                50.0, LocalDate.of(2020, 10, 13),
+        ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight2, airplane1, 50,
+                50.0, LocalDate.of(2020, 11, 13),
                 LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
 
@@ -99,9 +99,11 @@ public class FunctionUtil {
 
         System.out.println(topKRoutes.apply(airline,2020,5));
         System.out.println(topMealForAllFlights.apply(airline,10));
-        System.out.println(topKFrequentFlyers.apply(airline,2020,10));
+        System.out.println(topKFrequentFlyers.apply(airline,2020,1));
         System.out.println(totalNumberOfMiles.apply(airline,2020));
         System.out.println(bookingsPerMonth.apply(airline,2020));
+
+        System.out.println(topMealForAGivenForAllFlightsOnMonthlyBasis.apply(airline,2020));
 
     }
 
@@ -111,7 +113,7 @@ public class FunctionUtil {
                     .filter(f -> f.getDepartureDate().getYear() == year)
                     .collect(Collectors.groupingBy(ScheduledFlight::getFlight,Collectors.counting()))
                     .entrySet().stream()
-                    .sorted(Comparator.comparing(Map.Entry::getValue))
+                    .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
                     .map(f -> f.getKey().getFlightNumber())
                     .limit(topK)
                     .collect(Collectors.toList());
@@ -130,27 +132,61 @@ public class FunctionUtil {
                     .flatMap(a -> a.getBookings().stream())
                     .flatMap(b -> b.getTrips().stream())
                     .filter(t -> t.getScheduledFlight().getDepartureDate().getMonth().getValue() == month)
-                    .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight()))
+                    .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight().getFlightNumber()))
                     .entrySet().stream()
                     .collect(Collectors.toMap(
-                            entry -> entry.getKey().getFlightNumber(),
+                            entry -> entry.getKey(),//.getFlightNumber()
                             entry -> getTopMealForAFlight.apply(entry.getValue())
                             ));
+
+
+    public static Function<List<Trip>,String> getTopMealForAGivenFlightForAGivenMonth = (trips) ->
+            trips.stream()
+                    .collect(Collectors.groupingBy(Trip::getMeal,Collectors.counting()))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(Map.Entry::getValue,Comparator.reverseOrder()))
+                    .map(e -> e.getKey().toString())
+                    .findFirst()
+                    .get();
+
+    public static Function<List<Trip>,Map<String,String>> topMealForAMonthForAllFlights = (trips) ->
+            trips.stream()
+                    .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getFlight().getFlightNumber()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> getTopMealForAGivenFlightForAGivenMonth.apply(entry.getValue())
+                    ));
+
+    //Map<Month, Map<Flight,Meal>>
+    public static BiFunction<Airline,Integer,Map<String,Map<String, String>>> topMealForAGivenForAllFlightsOnMonthlyBasis = (airline,year) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getBookings().stream())
+                    .flatMap(b -> b.getTrips().stream())
+                    .filter(t -> t.getScheduledFlight().getDepartureDate().getYear() == year)
+                    .collect(Collectors.groupingBy(t -> t.getScheduledFlight().getDepartureDate().getMonth().getDisplayName(TextStyle.FULL,
+                            Locale.ENGLISH)))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> entry.getKey(),
+                            entry -> topMealForAMonthForAllFlights.apply(entry.getValue())
+                    ));
+
 
     public static TriFunction<Airline,Integer,Integer,List<String>> topKFrequentFlyers = (airline,year,topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getBookings().stream())
-                    .filter(b -> b.getDateTimeOfBooking().getYear() == year)
-                    .collect(Collectors.groupingBy(Booking::getPassengers,Collectors.counting()))
+                    .flatMap(b -> b.getPassengers().stream())
+                    .collect(Collectors.groupingBy(p -> p.getPerson()))
                     .entrySet().stream()
-                    .flatMap(e -> e.getKey().stream()
-                        .map(s -> new AbstractMap.SimpleImmutableEntry<Passenger,Long>(s,e.getValue())))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
+//                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().stream().flatMap(p -> p.getTrips().stream()).count()))
+                    .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().stream().count()))
                     .entrySet().stream()
-                    .sorted(Comparator.comparing(Map.Entry::getValue, Comparator.reverseOrder()))
-                    .map(m -> m.getKey().getPerson().getFirstName() + " " + m.getKey().getPerson().getLastName())
+                    .sorted(Comparator.comparing(entry -> entry.getValue(), Comparator.reverseOrder()))
                     .limit(topK)
+                    .map(entry -> entry.getKey().getFirstName() + " " + entry.getKey().getMiddleName() + " " + entry.getKey().getLastName())
                     .collect(Collectors.toList());
+
 
     public static BiFunction<Airline,Integer,Double> totalNumberOfMiles = (airline,year) ->
             Stream.of(airline)
@@ -167,4 +203,9 @@ public class FunctionUtil {
                     .collect(Collectors.groupingBy(b -> b.getDateTimeOfBooking().getMonth().getDisplayName(TextStyle.FULL,
                             Locale.ENGLISH),Collectors.counting()));
 
+    private enum ReportType{
+        DAILY,
+        WEEKLY,
+        MONTHLY
+    }
 }

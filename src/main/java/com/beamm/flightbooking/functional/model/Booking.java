@@ -14,16 +14,21 @@ public class Booking {
     private List<Trip> trips = new ArrayList<>();
     private List<Passenger> passengers =new ArrayList<>();
 
-    public Booking(Integer bookingId, Double price, LocalDateTime dateTimeOfBooking, String bookingReference, String luggageAllownace, List<Trip> trips, List<Passenger> passengers) {
+    public Booking(Integer bookingId, Double price, LocalDateTime dateTimeOfBooking, String bookingReference, String luggageAllownace, List<Passenger> passengers) {
         this.bookingId = bookingId;
         this.price = price;
         this.dateTimeOfBooking = dateTimeOfBooking;
         this.bookingReference = bookingReference;
         this.luggageAllownace = luggageAllownace;
-        this.trips = trips;
         this.passengers = passengers;
-        for (Passenger p : passengers){
-            for (Trip t:trips) {
+
+        for (Passenger p : passengers) {
+            List<Trip> trips = p.getTrips();
+
+            // Adding all trips of a given passenger to the list of trips of a booking
+            this.trips.addAll(trips);
+
+            for (Trip t: trips) {
                 t.getScheduledFlight().addPassenger(p);
             }
         }

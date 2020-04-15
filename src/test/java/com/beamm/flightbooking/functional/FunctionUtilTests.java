@@ -81,6 +81,7 @@ class FunctionUtilTests {
     );
     Booking booking3 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
             new ArrayList<Trip>() {{
+                add(trip2);
                 add(trip3);
             }},
             new ArrayList<Passenger>() {{
@@ -93,6 +94,8 @@ class FunctionUtilTests {
     List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
 
     Airline airline = new Airline(1, "Ethiopian Airlines", scheduledFlights, bookings);
+
+
 
     @Test
     public void topKRoutes(){
@@ -163,6 +166,12 @@ class FunctionUtilTests {
         List<String> leastExpending = Arrays.asList("ET302", "ET555");
         assertEquals(leastExpending, FunctionUtil.leastExpendingPassengers.apply(airline, 2020, 5));
 
+    }
+
+    @Test
+    public void multiLegFlightPassengers(){
+        long multilegPassengers = 2;
+        assertEquals(multilegPassengers, FunctionUtil.multiLegFlightPassengers.apply(airline,2020));
     }
 
 }

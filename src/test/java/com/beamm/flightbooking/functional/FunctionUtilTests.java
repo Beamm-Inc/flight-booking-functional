@@ -136,4 +136,26 @@ class FunctionUtilTests {
         assertEquals(topCrowdedExpected, topCrowdedFound);
     }
 
+    @Test
+    public void topMealForAGivenYearForAllFlightsOnMonthlyBasis(){
+        Map<String,Map<String,String>> topMeal = new HashMap<String , Map<String,String>>() {{
+            put("October",new HashMap<String , String>() {{
+                put("ET302","VEGIE");
+            }});
+
+            put("November",new HashMap<String , String>() {{
+                put("ET555","HALAL");
+            }});
+        }};
+        assertEquals(topMeal, FunctionUtil.topMealForAGivenYearForAllFlightsOnMonthlyBasis.apply(airline, 2020));
+
+    }
+
+    @Test
+    public void topKRevenuePerRoute(){
+        List<String> topKRevenuePerRout = Arrays.asList("ET555", "ET302");
+        assertEquals(topKRevenuePerRout,FunctionUtil.topKRevenuePerRoute.apply(airline, 2020, 5));
+
+    }
+
 }

@@ -22,6 +22,11 @@ public class Booking {
         this.luggageAllownace = luggageAllownace;
         this.trips = trips;
         this.passengers = passengers;
+        for (Passenger p : passengers){
+            for (Trip t:trips) {
+                t.getScheduledFlight().addPassenger(p);
+            }
+        }
     }
 
     public Integer getBookingId() {

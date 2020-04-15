@@ -158,4 +158,11 @@ class FunctionUtilTests {
 
     }
 
+    @Test
+    public void leastExpendingPassengers(){
+        List<String> leastExpending = Arrays.asList("ET302", "ET555");
+        assertEquals(leastExpending, FunctionUtil.leastExpendingPassengers.apply(airline, 2020, 5));
+
+    }
+
 }

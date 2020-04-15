@@ -2,7 +2,6 @@ package com.beamm.flightbooking.functional;
 
 import com.beamm.flightbooking.functional.model.*;
 
-import java.security.spec.RSAOtherPrimeInfo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -28,7 +27,8 @@ public class FunctionUtil {
         // Airplanes
         Airplane airplane1 = new Airplane(1, "ET-DL4S400", "777-200LR", 7, 25, 150);
         Airplane airplane2 = new Airplane(1, "ET-NJK0344", "A350-900", 10, 20, 170);
-        List<Airplane> airplanes = Arrays.asList(airplane1, airplane2);
+        Airplane airplane3 = new Airplane(1, "ET-ANK0344", "A380-900", 15, 25, 260);
+        List<Airplane> airplanes = Arrays.asList(airplane1, airplane2, airplane3);
 
         // Airports
         Airport airport1 = new Airport(1, "Bole International Airport", "ADD", "Addis Ababa");
@@ -41,7 +41,8 @@ public class FunctionUtil {
         Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
         Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
         Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
-
+        Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
+        
         List<Flight> flights = Arrays.asList(flight1, flight2);
 
         // Scheduled Flights
@@ -70,40 +71,31 @@ public class FunctionUtil {
         Trip trip1 = new Trip(1, "50", Meal.VEGIE, "4FFCK", FlightClass.ECONOMY, scheduledFlight1, 1000.00);
         Trip trip2 = new Trip(2, "53", Meal.HALAL, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 980.00);
         Trip trip3 = new Trip(2, "55", Meal.VEGIE, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
+        Trip trip4 = new Trip(4, "55", Meal.VEGIE, "HX434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
+
         Passenger passenger1 = new Passenger(1, "EP64734", person1, new ArrayList<Trip>() {{
             add(trip1);
-            add(trip2);
+           add(trip2);
         }});
         Passenger passenger2 = new Passenger(2, "EP03278", person2, new ArrayList<Trip>() {{
             add(trip3);
         }});
         Booking booking1 = new Booking(1, 423.56, LocalDateTime.now(), "ERTRKH4378FKOF8", "2",
-                new ArrayList<Trip>() {{
-                    add(trip1);
-                    add(trip2);
-                }},
                 new ArrayList<Passenger>() {{
                     add(passenger1);
                 }}
         );
         Booking booking2 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
-                new ArrayList<Trip>() {{
-                    add(trip2);
-                }},
                 new ArrayList<Passenger>() {{
                     add(passenger1);
                 }}
         );
         Booking booking3 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
-                new ArrayList<Trip>() {{
-                    add(trip2);
-                    add(trip3);
-                }},
-                new ArrayList<Passenger>() {{
+               new ArrayList<Passenger>() {{
                     add(passenger2);
                 }}
         );
-
+        
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
         List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
@@ -121,7 +113,7 @@ public class FunctionUtil {
         System.out.println(leastExpendingPassengers.apply(airline, 2020, 5));
         System.out.println(multiLegFlightPassengers.apply(airline, 2020));
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
-
+        System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
     }
 
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
@@ -250,9 +242,9 @@ public class FunctionUtil {
                     .collect(Collectors.groupingBy(s -> s.getFlight()))
                     .entrySet().stream()
                     .collect(Collectors.toMap(
-                            entry -> entry.getKey().getFlightNumber(),
-                            entry -> getAverageOccupancy.apply(entry.getValue())
-                    ))
+                                entry -> entry.getKey().getFlightNumber(),
+                                entry -> getAverageOccupancy.apply(entry.getValue())
+                            ))
                     .entrySet().stream()
                     .sorted(Comparator.comparing(m -> m.getKey(), Comparator.reverseOrder()))
                     .map(m -> m.getKey())
@@ -300,6 +292,25 @@ public class FunctionUtil {
                     .map(e -> e.getKey().getAirportName())
                     .limit(topK)
                     .collect(Collectors.toList());
+    public static Function<List<ScheduledFlight>, Double> calculatePercentageOfVacantSeats = scheduledFlights ->
+            scheduledFlights.stream()
+                            .mapToDouble(s -> 100.0 * s.getPassengers().size() / s.getCapacity())
+                            .sum();
+
+    public static QuadFunction<Airline,Integer,Integer, Integer, List<String>> topKFlightsToRemove = (airline, observationMonths, occupancyLimitPercentage, topK) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().isAfter(LocalDate.now().minusMonths(observationMonths)))
+                    .collect(Collectors.groupingBy(s -> s.getFlight().getFlightNumber()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(entry -> entry.getKey(),
+                            entry -> calculatePercentageOfVacantSeats.apply(entry.getValue())))
+                    .entrySet().stream()
+                    .sorted(Comparator.comparing(entry -> entry.getValue(), Comparator.reverseOrder()))
+                    .limit(topK)
+                    .map(entry -> entry.getKey())
+                    .collect(Collectors.toList());
+
 }
 
 

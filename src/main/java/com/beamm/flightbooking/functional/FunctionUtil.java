@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 public class FunctionUtil {
 
-    private enum ReportType {
+    public enum ReportType {
         DAILY,
         WEEKLY,
         MONTHLY
@@ -118,7 +118,7 @@ public class FunctionUtil {
         
         // find top N Flights Based On Seat Utilization On Monthly Basis
         
-        System.out.println(topNFlightsBasedOnSeatOccupancy(2,LocalDate.of(2020, 10, 15),scheduledFlights));
+        System.out.println(topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
     }
 
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
@@ -317,15 +317,44 @@ public class FunctionUtil {
                     .collect(Collectors.toList());
             
             
-      public static List<Flight> topNFlightsBasedOnSeatOccupancy(int n, LocalDate date, List<ScheduledFlight> scheduledFlights) {
-    	     return scheduledFlights.stream()
+      public static TriFunction<Airline ,LocalDate,Integer, List<String>> topNFlightsBasedOnSeatOccupancy=(airline,  date, topK)  ->
+                   Stream.of(airline)
+                   .flatMap(a -> a.getScheduledFlights().stream())
+    	    		 
     			  .filter(sf-> sf.getDepartureDate().isAfter(date)&&sf.getDepartureDate().isBefore(date.plusMonths(1)))
     			  .sorted((sf1,sf2)->(sf2.getOccupiedSeats()/sf2.getCapacity())-(sf1.getOccupiedSeats()/sf1.getCapacity()))
-    			  .limit(n)
-    			  .map(sf->sf.getFlight())
+    			  .limit(topK)
+    			  .map(sf->sf.getFlight().getFlightNumber())
     			  .collect(Collectors.toList());
     			  
-      }
+      
+      
+      public static  TriFunction<LocalDate,ReportType,Airline, Integer> getTotalNumberOfPassengers=( startDate,  reportType, airLine )-> 
+    	   Stream.of(airLine)
+          .flatMap(a -> a.getScheduledFlights().stream())
+   		  .filter(sf->{
+   			  if (ReportType.DAILY==reportType) {
+   				  return sf.getDepartureDate().getYear()==startDate.getYear()&&
+   						sf.getDepartureDate().getMonthValue()==startDate.getMonthValue()&&
+   								sf.getDepartureDate().getDayOfMonth()==startDate.getDayOfMonth();
+   			  }
+   			  else if (ReportType.WEEKLY== reportType) {
+   				  return sf.getDepartureDate().isAfter(startDate)&&
+   						sf.getDepartureDate().isBefore(startDate.plusDays(7));
+   				  
+   			  }
+   			  else {
+   				  return sf.getDepartureDate().isAfter(startDate)&&
+     						sf.getDepartureDate().isBefore(startDate.plusDays(30));
+   				  
+   			  }
+   		  })
+   		  .map(sf-> sf.getPassengers().size())
+   		  .reduce((sf1,sf2)-> sf1+ sf2)
+   		  .get();
+   		  
+   		  
+      
 
 }
 

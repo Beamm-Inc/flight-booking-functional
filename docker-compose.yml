@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  flight-booking-functional:
+    image: flight-booking:1
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - /data/flight-booking

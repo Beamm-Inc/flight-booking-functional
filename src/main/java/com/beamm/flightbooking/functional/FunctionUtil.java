@@ -124,7 +124,7 @@ public class FunctionUtil {
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
         System.out.println(topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
-      
+        System.out.println(numberOfPassengersOnDailyBasis.apply(airline, 2020));
     }
   
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
@@ -333,6 +333,15 @@ public class FunctionUtil {
     			  .map(sf->sf.getFlight().getFlightNumber())
     			  .collect(Collectors.toList());  		  
       
+
+    public static BiFunction<Airline, Integer, Map<LocalDate, Long>> numberOfPassengersOnDailyBasis = (airline, year) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().getYear() == year)
+                    .collect(Collectors.groupingBy(s -> s.getDepartureDate()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(entry -> entry.getKey(),
+                            entry -> entry.getValue().stream().count()));
 
 }
 

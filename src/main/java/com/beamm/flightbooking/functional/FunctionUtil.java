@@ -17,11 +17,12 @@ import java.util.stream.Stream;
 
 public class FunctionUtil {
 
-    private enum ReportType {
+    public enum ReportType {
         DAILY,
         WEEKLY,
         MONTHLY
     }
+  
     public static void main(String[] args) {
 
         // Airplanes
@@ -51,17 +52,25 @@ public class FunctionUtil {
                 LocalDate.of(2020, 10, 10), new ArrayList<Passenger>());
 
         ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight2, airplane1, 110,
-                50.0, LocalDate.of(2020, 11, 13),
-                LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
+                590.0, LocalDate.of(2020, 11, 13),
+                LocalDate.of(2020, 11, 13), new ArrayList<Passenger>());
 
 
         ScheduledFlight scheduledFlight3 = new ScheduledFlight(3, flight1, airplane1, 150,
-                50.0, LocalDate.of(2019, 10, 13),
+                570.0, LocalDate.of(2020, 10, 13),
                 LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
         ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight3, airplane2, 80,
-                50.0, LocalDate.of(2020, 10, 15),
+                850.0, LocalDate.of(2020, 10, 15),
                 LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
+
+        ScheduledFlight scheduledFlight5 = new ScheduledFlight(5, flight3, airplane3, 90,
+                720.0, LocalDate.of(2020, 10, 15),
+                LocalDate.of(2020, 9, 5), new ArrayList<Passenger>());
+
+        ScheduledFlight scheduledFlight6 = new ScheduledFlight(6, flight1, airplane2, 110,
+                730.0, LocalDate.of(2020, 11, 15),
+                LocalDate.of(2020, 9, 5), new ArrayList<Passenger>());
 
         // Bookings
         Address address = new Address(1, "S12N 4th", "Chicago", "Illinois", "USA", "42423");//34,"a",,"c","d","12");
@@ -98,7 +107,7 @@ public class FunctionUtil {
         
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
-        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
+        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4, scheduledFlight5, scheduledFlight6);
 
         Airline airline = new Airline(1, "Ethiopian Airlines", scheduledFlights, bookings);
 
@@ -114,8 +123,10 @@ public class FunctionUtil {
         System.out.println(multiLegFlightPassengers.apply(airline, 2020));
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
+        System.out.println(topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
+        System.out.println(numberOfPassengersOnDailyBasis.apply(airline, 2020));
     }
-
+  
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
@@ -310,6 +321,27 @@ public class FunctionUtil {
                     .limit(topK)
                     .map(entry -> entry.getKey())
                     .collect(Collectors.toList());
+            
+            
+      public static TriFunction<Airline ,LocalDate,Integer, List<String>> topNFlightsBasedOnSeatOccupancy=(airline,  date, topK)  ->
+                   Stream.of(airline)
+                   .flatMap(a -> a.getScheduledFlights().stream())
+    	    		 
+    			  .filter(sf-> sf.getDepartureDate().isAfter(date)&&sf.getDepartureDate().isBefore(date.plusMonths(1)))
+    			  .sorted((sf1,sf2)->(sf2.getOccupiedSeats()/sf2.getCapacity())-(sf1.getOccupiedSeats()/sf1.getCapacity()))
+    			  .limit(topK)
+    			  .map(sf->sf.getFlight().getFlightNumber())
+    			  .collect(Collectors.toList());  		  
+      
+
+    public static BiFunction<Airline, Integer, Map<LocalDate, Long>> numberOfPassengersOnDailyBasis = (airline, year) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().getYear() == year)
+                    .collect(Collectors.groupingBy(s -> s.getDepartureDate()))
+                    .entrySet().stream()
+                    .collect(Collectors.toMap(entry -> entry.getKey(),
+                            entry -> entry.getValue().stream().count()));
 
 }
 

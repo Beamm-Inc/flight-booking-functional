@@ -41,4 +41,8 @@ public class Airplane
     public int getEconomyClassSeats() {
         return economyClassSeats;
     }
+    
+    public int getSeats() {
+    	return firstClassSeats + businessClassSeats+economyClassSeats;
+    }
 }

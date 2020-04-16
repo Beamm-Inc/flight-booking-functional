@@ -39,10 +39,10 @@ public class FunctionUtil {
         List<Airport> airports = Arrays.asList(airport1, airport2, airport3, airport4);
 
         // Flights
-        Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
-        Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
-        Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
-        Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
+        Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.of(7,25), LocalTime.of(10,30), 434.3, 4434.0);
+        Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.of(11,35), LocalTime.of(14,10), 434.3, 2934.0);
+        Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.of(5,30), LocalTime.of(9,10), 494.7, 3489.0);
+        Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.of(6,10), LocalTime.of(6,40), 434.3, 2934.0);
 
         List<Flight> flights = Arrays.asList(flight1, flight2);
 
@@ -124,6 +124,7 @@ public class FunctionUtil {
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
         System.out.println(numberOfPassengersOnDailyBasis.apply(airline, 2020));
+        System.out.println(ongoingFlightsAtAGivenTime.apply(airline, LocalDateTime.of( LocalDate.of(2020, 11, 13),LocalTime.of(11,40))));
 
     }
 
@@ -332,6 +333,15 @@ public class FunctionUtil {
                     .collect(Collectors.toMap(entry -> entry.getKey(),
                             entry -> entry.getValue().stream().count()));
 
+
+    public static BiFunction<Airline, LocalDateTime, List<String>> ongoingFlightsAtAGivenTime = (airline, time) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> time.isAfter(LocalDateTime.of(s.getDepartureDate(), s.getFlight().getDepartureTime())) &&
+                            time.isBefore(LocalDateTime.of(s.getArrivalDate(), s.getFlight().getArrivalTime())))
+                    .sorted(Comparator.comparing(s -> s.getFlight().getDepartureTime(),Comparator.reverseOrder()))
+                    .map(s -> s.getFlight().getFlightNumber() + ", " + s.getFlight().getOrigin().getAirportCity()
+                            + " - " + s.getFlight().getDestination().getAirportCity())
+                    .collect(Collectors.toList());
+
 }
-
-

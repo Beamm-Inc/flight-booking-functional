@@ -178,6 +178,13 @@ class FunctionUtilTests {
         List<String> mostUsed = Arrays.asList("Bole International Airport","John F Kennedy International Airport","Chicago O'Hare International Airport");
         assertEquals(mostUsed, FunctionUtil.mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
     }
+    
+    @Test
+    public void topNFlightsBasedOnSeatOccupancy() {
+    	List<String> topNFlight = Arrays.asList("ET302", "ET345", "ET555");
+        assertEquals(topNFlight,FunctionUtil.topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
+    
+    }
 
     public void numberOfPassengersOnDailyBasis(){
         Map<LocalDate,Long> numPassanger = new HashMap<LocalDate, Long>(){{

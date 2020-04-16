@@ -17,11 +17,12 @@ import java.util.stream.Stream;
 
 public class FunctionUtil {
 
-    /*private enum ReportType {
+    public enum ReportType {
         DAILY,
         WEEKLY,
         MONTHLY
     }
+  
     public static void main(String[] args) {
 
         // Airplanes
@@ -122,9 +123,10 @@ public class FunctionUtil {
         System.out.println(multiLegFlightPassengers.apply(airline, 2020));
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
+        System.out.println(topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
         System.out.println(numberOfPassengersOnDailyBasis.apply(airline, 2020));
     }
-*/
+  
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
@@ -319,6 +321,18 @@ public class FunctionUtil {
                     .limit(topK)
                     .map(entry -> entry.getKey())
                     .collect(Collectors.toList());
+            
+            
+      public static TriFunction<Airline ,LocalDate,Integer, List<String>> topNFlightsBasedOnSeatOccupancy=(airline,  date, topK)  ->
+                   Stream.of(airline)
+                   .flatMap(a -> a.getScheduledFlights().stream())
+    	    		 
+    			  .filter(sf-> sf.getDepartureDate().isAfter(date)&&sf.getDepartureDate().isBefore(date.plusMonths(1)))
+    			  .sorted((sf1,sf2)->(sf2.getOccupiedSeats()/sf2.getCapacity())-(sf1.getOccupiedSeats()/sf1.getCapacity()))
+    			  .limit(topK)
+    			  .map(sf->sf.getFlight().getFlightNumber())
+    			  .collect(Collectors.toList());  		  
+      
 
     public static BiFunction<Airline, Integer, Map<LocalDate, Long>> numberOfPassengersOnDailyBasis = (airline, year) ->
             Stream.of(airline)

@@ -172,7 +172,11 @@ class FunctionUtilTests {
         assertEquals(mostUsed, FunctionUtil.mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
     }
     
-   // @Test
-   // public void 
+    @Test
+    public void topNFlightsBasedOnSeatOccupancy() {
+    	List<String> topNFlight = Arrays.asList("ET302", "ET345", "ET555");
+        assertEquals(topNFlight,FunctionUtil.topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
+    
+    }
 
 }

@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -125,7 +126,7 @@ public class FunctionUtil {
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
         System.out.println(numberOfPassengersOnDailyBasis.apply(airline, 2020));
         System.out.println(ongoingFlightsAtAGivenTime.apply(airline, LocalDateTime.of( LocalDate.of(2020, 11, 13),LocalTime.of(11,40))));
-
+        System.out.println(flightTimesFromAGivenCityForARangeOfDays.apply(airline, LocalDate.of(2020,10,20), LocalDate.of(2020,11,20), airport1));
     }
 
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
@@ -333,6 +334,20 @@ public class FunctionUtil {
                     .collect(Collectors.toMap(entry -> entry.getKey(),
                             entry -> entry.getValue().stream().count()));
 
+//    Flight Times - Displays all flight departure and arrival times for a date range departing from a specific city
+    public static QuadFunction<Airline, LocalDate, LocalDate, Airport, List<String>>
+                                flightTimesFromAGivenCityForARangeOfDays = (airline, startDate, endDate, airport) ->
+            Stream.of(airline)
+                    .flatMap(a -> a.getScheduledFlights().stream())
+                    .filter(s -> s.getDepartureDate().isAfter(startDate.minusDays(1)) &&
+                            s.getDepartureDate().isBefore(endDate.plusDays(1)))
+                    .sorted(Comparator.comparing(s -> s.getDepartureDate()))
+                    .map(s -> s.getFlight().getFlightNumber() + ": " + s.getFlight().getOrigin().getAirportCity()
+                            + "->" + s.getFlight().getDestination().getAirportCity() + ", " + LocalDateTime.of(s.getDepartureDate(),
+                            s.getFlight().getDepartureTime()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                            + ", " + LocalDateTime.of(s.getArrivalDate(), s.getFlight().getArrivalTime()).format(
+                                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .collect(Collectors.toList());
 
     public static BiFunction<Airline, LocalDateTime, List<String>> ongoingFlightsAtAGivenTime = (airline, time) ->
             Stream.of(airline)

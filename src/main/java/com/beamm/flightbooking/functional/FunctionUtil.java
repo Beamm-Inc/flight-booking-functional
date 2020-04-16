@@ -22,6 +22,7 @@ public class FunctionUtil {
         WEEKLY,
         MONTHLY
     }
+  
     public static void main(String[] args) {
 
         // Airplanes
@@ -51,17 +52,25 @@ public class FunctionUtil {
                 LocalDate.of(2020, 10, 10), new ArrayList<Passenger>());
 
         ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight2, airplane1, 110,
-                50.0, LocalDate.of(2020, 11, 13),
-                LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
+                590.0, LocalDate.of(2020, 11, 13),
+                LocalDate.of(2020, 11, 13), new ArrayList<Passenger>());
 
 
         ScheduledFlight scheduledFlight3 = new ScheduledFlight(3, flight1, airplane1, 150,
-                50.0, LocalDate.of(2019, 10, 13),
+                570.0, LocalDate.of(2020, 10, 13),
                 LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
         ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight3, airplane2, 80,
-                50.0, LocalDate.of(2020, 10, 15),
+                850.0, LocalDate.of(2020, 10, 15),
                 LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
+
+        ScheduledFlight scheduledFlight5 = new ScheduledFlight(5, flight3, airplane3, 90,
+                720.0, LocalDate.of(2020, 10, 15),
+                LocalDate.of(2020, 9, 5), new ArrayList<Passenger>());
+
+        ScheduledFlight scheduledFlight6 = new ScheduledFlight(6, flight1, airplane2, 110,
+                730.0, LocalDate.of(2020, 11, 15),
+                LocalDate.of(2020, 9, 5), new ArrayList<Passenger>());
 
         // Bookings
         Address address = new Address(1, "S12N 4th", "Chicago", "Illinois", "USA", "42423");//34,"a",,"c","d","12");
@@ -98,7 +107,7 @@ public class FunctionUtil {
         
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
-        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
+        List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4, scheduledFlight5, scheduledFlight6);
 
         Airline airline = new Airline(1, "Ethiopian Airlines", scheduledFlights, bookings);
 
@@ -114,13 +123,10 @@ public class FunctionUtil {
         System.out.println(multiLegFlightPassengers.apply(airline, 2020));
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
-        
-        
-        // find top N Flights Based On Seat Utilization On Monthly Basis
-        
         System.out.println(topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
+      
     }
-
+  
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
@@ -325,35 +331,7 @@ public class FunctionUtil {
     			  .sorted((sf1,sf2)->(sf2.getOccupiedSeats()/sf2.getCapacity())-(sf1.getOccupiedSeats()/sf1.getCapacity()))
     			  .limit(topK)
     			  .map(sf->sf.getFlight().getFlightNumber())
-    			  .collect(Collectors.toList());
-    			  
-      
-      
-      public static  TriFunction<LocalDate,ReportType,Airline, Integer> getTotalNumberOfPassengers=( startDate,  reportType, airLine )-> 
-    	   Stream.of(airLine)
-          .flatMap(a -> a.getScheduledFlights().stream())
-   		  .filter(sf->{
-   			  if (ReportType.DAILY==reportType) {
-   				  return sf.getDepartureDate().getYear()==startDate.getYear()&&
-   						sf.getDepartureDate().getMonthValue()==startDate.getMonthValue()&&
-   								sf.getDepartureDate().getDayOfMonth()==startDate.getDayOfMonth();
-   			  }
-   			  else if (ReportType.WEEKLY== reportType) {
-   				  return sf.getDepartureDate().isAfter(startDate)&&
-   						sf.getDepartureDate().isBefore(startDate.plusDays(7));
-   				  
-   			  }
-   			  else {
-   				  return sf.getDepartureDate().isAfter(startDate)&&
-     						sf.getDepartureDate().isBefore(startDate.plusDays(30));
-   				  
-   			  }
-   		  })
-   		  .map(sf-> sf.getPassengers().size())
-   		  .reduce((sf1,sf2)-> sf1+ sf2)
-   		  .get();
-   		  
-   		  
+    			  .collect(Collectors.toList());  		  
       
 
 }

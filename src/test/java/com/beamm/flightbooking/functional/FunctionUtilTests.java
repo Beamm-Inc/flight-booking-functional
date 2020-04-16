@@ -25,10 +25,10 @@ class FunctionUtilTests {
     List<Airport> airports = Arrays.asList(airport1, airport2, airport3, airport4);
 
     // Flights
-    Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
-    Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
-    Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
-    Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
+    Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.of(7,25), LocalTime.of(10,30), 434.3, 4434.0);
+    Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.of(11,35), LocalTime.of(14,10), 434.3, 2934.0);
+    Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.of(5,30), LocalTime.of(9,10), 494.7, 3489.0);
+    Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.of(6,10), LocalTime.of(6,40), 434.3, 2934.0);
 
     List<Flight> flights = Arrays.asList(flight1, flight2);
 
@@ -75,7 +75,7 @@ class FunctionUtilTests {
     Passenger passenger2 = new Passenger(2, "EP03278", person2, new ArrayList<Trip>() {{
         add(trip3);
     }});
-    Booking booking1 = new Booking(1, 423.56, LocalDateTime.now(), "ERTRKH4378FKOF8", "2",
+    Booking booking1 = new Booking(1, 423.56, LocalDateTime.of(2020, 4, 16, 3, 10), "ERTRKH4378FKOF8", "2",
             new ArrayList<Passenger>() {{
                 add(passenger1);
             }}
@@ -196,6 +196,13 @@ class FunctionUtilTests {
     public void topKFlightsToRemove(){
         List<String> topKFlights = Arrays.asList("ET555", "ET302", "ET345");
         assertEquals(topKFlights, FunctionUtil.topKFlightsToRemove.apply(airline, 12, 50, 10));
+    }
+
+
+    @Test
+    public void ongoingFlightsAtAGivenTime(){
+        List<String> ongoingFlights = Arrays.asList("ET555, New York - Addis Ababa");
+        assertEquals(ongoingFlights, FunctionUtil.ongoingFlightsAtAGivenTime.apply(airline, LocalDateTime.of( LocalDate.of(2020, 11, 13),LocalTime.of(11,40))));
     }
 
 }

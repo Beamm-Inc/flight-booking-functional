@@ -43,7 +43,7 @@ public class FunctionUtil {
         Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
         Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
         Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
-        
+
         List<Flight> flights = Arrays.asList(flight1, flight2);
 
         // Scheduled Flights
@@ -84,7 +84,7 @@ public class FunctionUtil {
 
         Passenger passenger1 = new Passenger(1, "EP64734", person1, new ArrayList<Trip>() {{
             add(trip1);
-           add(trip2);
+            add(trip2);
         }});
         Passenger passenger2 = new Passenger(2, "EP03278", person2, new ArrayList<Trip>() {{
             add(trip3);
@@ -100,11 +100,11 @@ public class FunctionUtil {
                 }}
         );
         Booking booking3 = new Booking(2, 239.26, LocalDateTime.of(2020, 10, 13, 2, 10), "NI43HB4J3BJ3", "2",
-               new ArrayList<Passenger>() {{
+                new ArrayList<Passenger>() {{
                     add(passenger2);
                 }}
         );
-        
+
         List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
         List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4, scheduledFlight5, scheduledFlight6);
@@ -123,10 +123,10 @@ public class FunctionUtil {
         System.out.println(multiLegFlightPassengers.apply(airline, 2020));
         System.out.println(mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
         System.out.println(topKFlightsToRemove.apply(airline, 12, 50, 10));
-        System.out.println(topNFlightsBasedOnSeatOccupancy.apply(airline,LocalDate.of(2020, 10, 15),5));
         System.out.println(numberOfPassengersOnDailyBasis.apply(airline, 2020));
+
     }
-  
+
     public static TriFunction<Airline, Integer, Integer, List<String>> topKRoutes = (airline, year, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
@@ -253,9 +253,9 @@ public class FunctionUtil {
                     .collect(Collectors.groupingBy(s -> s.getFlight()))
                     .entrySet().stream()
                     .collect(Collectors.toMap(
-                                entry -> entry.getKey().getFlightNumber(),
-                                entry -> getAverageOccupancy.apply(entry.getValue())
-                            ))
+                            entry -> entry.getKey().getFlightNumber(),
+                            entry -> getAverageOccupancy.apply(entry.getValue())
+                    ))
                     .entrySet().stream()
                     .sorted(Comparator.comparing(m -> m.getKey(), Comparator.reverseOrder()))
                     .map(m -> m.getKey())
@@ -303,12 +303,13 @@ public class FunctionUtil {
                     .map(e -> e.getKey().getAirportName())
                     .limit(topK)
                     .collect(Collectors.toList());
+
     public static Function<List<ScheduledFlight>, Double> calculatePercentageOfVacantSeats = scheduledFlights ->
             scheduledFlights.stream()
-                            .mapToDouble(s -> 100.0 * s.getPassengers().size() / s.getCapacity())
-                            .sum();
+                    .mapToDouble(s -> 100.0 * s.getPassengers().size() / s.getCapacity())
+                    .sum();
 
-    public static QuadFunction<Airline,Integer,Integer, Integer, List<String>> topKFlightsToRemove = (airline, observationMonths, occupancyLimitPercentage, topK) ->
+    public static QuadFunction<Airline, Integer, Integer, Integer, List<String>> topKFlightsToRemove = (airline, observationMonths, occupancyLimitPercentage, topK) ->
             Stream.of(airline)
                     .flatMap(a -> a.getScheduledFlights().stream())
                     .filter(s -> s.getDepartureDate().isAfter(LocalDate.now().minusMonths(observationMonths)))
@@ -321,18 +322,6 @@ public class FunctionUtil {
                     .limit(topK)
                     .map(entry -> entry.getKey())
                     .collect(Collectors.toList());
-            
-            
-      public static TriFunction<Airline ,LocalDate,Integer, List<String>> topNFlightsBasedOnSeatOccupancy=(airline,  date, topK)  ->
-                   Stream.of(airline)
-                   .flatMap(a -> a.getScheduledFlights().stream())
-    	    		 
-    			  .filter(sf-> sf.getDepartureDate().isAfter(date)&&sf.getDepartureDate().isBefore(date.plusMonths(1)))
-    			  .sorted((sf1,sf2)->(sf2.getOccupiedSeats()/sf2.getCapacity())-(sf1.getOccupiedSeats()/sf1.getCapacity()))
-    			  .limit(topK)
-    			  .map(sf->sf.getFlight().getFlightNumber())
-    			  .collect(Collectors.toList());  		  
-      
 
     public static BiFunction<Airline, Integer, Map<LocalDate, Long>> numberOfPassengersOnDailyBasis = (airline, year) ->
             Stream.of(airline)

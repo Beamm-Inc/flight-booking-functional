@@ -205,4 +205,9 @@ class FunctionUtilTests {
         assertEquals(ongoingFlights, FunctionUtil.ongoingFlightsAtAGivenTime.apply(airline, LocalDateTime.of( LocalDate.of(2020, 11, 13),LocalTime.of(11,40))));
     }
 
+    @Test
+    public void flightTimesFromAGivenCityForARangeOfDays(){
+        List<String> flights = Arrays.asList("ET555: New York->Addis Ababa, 2020-11-13 11:35:00, 2020-11-13 14:10:00", "ET302: Addis Ababa->New York, 2020-11-15 07:25:00, 2020-09-05 10:30:00");
+        assertEquals(flights, FunctionUtil.flightTimesFromAGivenCityForARangeOfDays.apply(airline,LocalDate.of(2020,10,20), LocalDate.of(2020,11,20), airport1));
+    }
 }

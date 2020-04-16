@@ -11,12 +11,11 @@ import java.util.*;
 
 
 class FunctionUtilTests {
-
-
     // Airplanes
     Airplane airplane1 = new Airplane(1, "ET-DL4S400", "777-200LR", 7, 25, 150);
     Airplane airplane2 = new Airplane(1, "ET-NJK0344", "A350-900", 10, 20, 170);
-    List<Airplane> airplanes = Arrays.asList(airplane1, airplane2);
+    Airplane airplane3 = new Airplane(1, "ET-ANK0344", "A380-900", 15, 25, 260);
+    List<Airplane> airplanes = Arrays.asList(airplane1, airplane2, airplane3);
 
     // Airports
     Airport airport1 = new Airport(1, "Bole International Airport", "ADD", "Addis Ababa");
@@ -29,6 +28,7 @@ class FunctionUtilTests {
     Flight flight1 = new Flight(1, "ET302", airport1, airport2, LocalTime.now(), LocalTime.now(), 434.3, 4434.0);
     Flight flight2 = new Flight(2, "ET555", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
     Flight flight3 = new Flight(2, "ET345", airport3, airport1, LocalTime.now(), LocalTime.now(), 494.7, 3489.0);
+    Flight flight4 = new Flight(2, "ET777", airport2, airport1, LocalTime.now(), LocalTime.now(), 434.3, 2934.0);
 
     List<Flight> flights = Arrays.asList(flight1, flight2);
 
@@ -38,17 +38,25 @@ class FunctionUtilTests {
             LocalDate.of(2020, 10, 10), new ArrayList<Passenger>());
 
     ScheduledFlight scheduledFlight2 = new ScheduledFlight(2, flight2, airplane1, 110,
-            50.0, LocalDate.of(2020, 11, 13),
-            LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
+            590.0, LocalDate.of(2020, 11, 13),
+            LocalDate.of(2020, 11, 13), new ArrayList<Passenger>());
 
 
     ScheduledFlight scheduledFlight3 = new ScheduledFlight(3, flight1, airplane1, 150,
-            50.0, LocalDate.of(2019, 10, 13),
+            570.0, LocalDate.of(2020, 10, 13),
             LocalDate.of(2020, 10, 13), new ArrayList<Passenger>());
 
     ScheduledFlight scheduledFlight4 = new ScheduledFlight(4, flight3, airplane2, 80,
-            50.0, LocalDate.of(2020, 10, 15),
+            850.0, LocalDate.of(2020, 10, 15),
             LocalDate.of(2020, 10, 15), new ArrayList<Passenger>());
+
+    ScheduledFlight scheduledFlight5 = new ScheduledFlight(5, flight3, airplane3, 90,
+            720.0, LocalDate.of(2020, 10, 15),
+            LocalDate.of(2020, 9, 5), new ArrayList<Passenger>());
+
+    ScheduledFlight scheduledFlight6 = new ScheduledFlight(6, flight1, airplane2, 110,
+            730.0, LocalDate.of(2020, 11, 15),
+            LocalDate.of(2020, 9, 5), new ArrayList<Passenger>());
 
     // Bookings
     Address address = new Address(1, "S12N 4th", "Chicago", "Illinois", "USA", "42423");//34,"a",,"c","d","12");
@@ -58,6 +66,8 @@ class FunctionUtilTests {
     Trip trip1 = new Trip(1, "50", Meal.VEGIE, "4FFCK", FlightClass.ECONOMY, scheduledFlight1, 1000.00);
     Trip trip2 = new Trip(2, "53", Meal.HALAL, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 980.00);
     Trip trip3 = new Trip(2, "55", Meal.VEGIE, "HJ434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
+    Trip trip4 = new Trip(4, "55", Meal.VEGIE, "HX434", FlightClass.BUSINESS, scheduledFlight2, 1080.00);
+
     Passenger passenger1 = new Passenger(1, "EP64734", person1, new ArrayList<Trip>() {{
         add(trip1);
         add(trip2);
@@ -83,16 +93,14 @@ class FunctionUtilTests {
 
     List<Booking> bookings = Arrays.asList(booking1, booking2, booking3);
 
-    List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4);
+    List<ScheduledFlight> scheduledFlights = Arrays.asList(scheduledFlight1, scheduledFlight2, scheduledFlight3, scheduledFlight4, scheduledFlight5, scheduledFlight6);
 
     Airline airline = new Airline(1, "Ethiopian Airlines", scheduledFlights, bookings);
-
-
 
     @Test
     public void topKRoutes(){
         List<String> top5Routes = Arrays.asList("ET302", "ET345", "ET555");
-        assertEquals(top5Routes,FunctionUtil.topKRoutes.apply(airline,2020,5));
+        assertEquals(top5Routes,FunctionUtil.topKRoutes.apply(airline, 2020, 5));
     }
 
     @Test
@@ -120,7 +128,7 @@ class FunctionUtilTests {
 
     @Test
     public void totalNumberOfMiles(){
-        double totalMiles = 10857.0;
+        double totalMiles = 23214.0;
         assertEquals(totalMiles, FunctionUtil.totalNumberOfMiles.apply(airline,2020));
     }
 
@@ -155,14 +163,14 @@ class FunctionUtilTests {
 
     @Test
     public void leastExpendingPassengers(){
-        List<String> leastExpending = Arrays.asList("ET302", "ET555");
+        List<String> leastExpending = Arrays.asList("ET555", "ET302");
         assertEquals(leastExpending, FunctionUtil.leastExpendingPassengers.apply(airline, 2020, 5));
 
     }
 
     @Test
     public void multiLegFlightPassengers(){
-        long multilegPassengers = 2;
+        long multilegPassengers = 1;
         assertEquals(multilegPassengers, FunctionUtil.multiLegFlightPassengers.apply(airline,2020));
     }
 
@@ -170,6 +178,12 @@ class FunctionUtilTests {
     public void mostUsedAirpotsForAGivenYear(){
         List<String> mostUsed = Arrays.asList("Bole International Airport","John F Kennedy International Airport","Chicago O'Hare International Airport");
         assertEquals(mostUsed, FunctionUtil.mostUsedAirpotsForAGivenYear.apply(airline, 2020, 4));
+    }
+
+    @Test
+    public void topKFlightsToRemove(){
+        List<String> topKFlights = Arrays.asList("ET555", "ET302", "ET345");
+        assertEquals(topKFlights, FunctionUtil.topKFlightsToRemove.apply(airline, 12, 50, 10));
     }
 
 }
